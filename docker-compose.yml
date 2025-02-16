@@ -1,0 +1,45 @@
+services:
+  # Laravel (PHP + MySQL)
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # Python API
+  python-api:
+    build:
+      context: ./python-api
+      dockerfile: venv/Dockerfile
+    container_name: python_api
+    restart: always
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./python-api:/app
+    working_dir: /app
+    command: ["python", "app.py"]
+
+volumes:
+  db_data:
